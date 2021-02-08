@@ -1,38 +1,55 @@
 export const validateExpression = (expression: string) => {
 
-    var initialRe = /^\/r [+-]*\d+(?!\d*d)|\/r [+-]*(\d*d\d+)/g
+    const initialConstRe = /^\/r [+-]*\d+(?!\d*d)/g
+    const initialDiceRe = /\/r [+-]*(\d*d\d+)/g
 
-    var initialMatch = expression.match(initialRe)?.map((ex) => ex.replace(/^\/r /g, "")) ?? []
+    if (initialConstRe.test(expression)) {
+        var initialConstMatch = expression.match(initialConstRe)?.map((ex) => ex.replace(/^\/r /g, "")) ?? []
+        var withoutPrefix = expression.replace(initialConstRe, "").replaceAll(" ", "")
 
-    var withoutPrefix = expression.replace(initialRe, "").replaceAll(" ", "")
+        const myRe2 = /[+-]\d+(?!\d*d)/g
+        const myRe = /([+-]\d*d\d+)/g
+
+        var dice = withoutPrefix.match(myRe)?.concat([]) ?? []
+        var constantsMatch = withoutPrefix.match(myRe2)?.concat([]) ?? []
+        var constants = initialConstMatch.concat(constantsMatch)
+    } else {
+        var initialDiceMatch = expression.match(initialDiceRe)?.map((ex) => ex.replace(/^\/r /g, "")) ?? []
+        var withoutPrefix = expression.replace(initialDiceRe, "").replaceAll(" ", "")
+
+        const myRe2 = /[+-]\d+(?!\d*d)/g
+        const myRe = /([+-]\d*d\d+)/g
+
+        var diceMatch = withoutPrefix.match(myRe)?.concat([]) ?? []
+        var constants = withoutPrefix.match(myRe2)?.concat([]) ?? []
+        var dice = initialDiceMatch.concat(diceMatch)
+    }
 
 
-    var myRe2 = /[+-]\d+(?!\d*d)/g
-    var myRe = /([+-]\d*d\d+)/g
 
-    var match = withoutPrefix.match(myRe) ?? []
-    var constants = withoutPrefix.match(myRe2)?.concat([]) ?? []
 
-    var dice = initialMatch.concat(match)
     return [dice, constants]
 }
 
 export const rollTheDice = (dice: string[], constants: string[]) => {
 
+
     const summedConstants = constants.map((st) => parseInt(st)).reduce((a, b) => a + b, 0)
     const translatedDice = dice.map((diceString) => diceString.split("d").map(st => parseInt(st)));
 
-    const rolledDice = translatedDice.map((couple) => {
-        let result = 0;
-        for (let i = 0; i < couple[0]; i++) {
-            let a = Math.floor(Math.random() * couple[1]) + 1;
-            console.log(a);
+    var rolledDice = 0
+    if (translatedDice.length > 0) {
+        rolledDice = translatedDice.map((couple) => {
+            let result = 0;
+            for (let i = 0; i < couple[0]; i++) {
+                let a = Math.floor(Math.random() * couple[1]) + 1;
+                console.log(a);
 
-            result += a
-        }
-        return result;
-    })[0]
-
+                result += a
+            }
+            return result;
+        })[0]
+    }
     return rolledDice + summedConstants
 }
 
