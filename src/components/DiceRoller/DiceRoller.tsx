@@ -35,6 +35,8 @@ const DiceRoller = () => {
 
   const [isCommand,setIsCommand] = useState(false)
 
+  const [result, setResult] = useState(0)
+
   const [rollData, setRollData] = useState({
     d4: 0,
     d6: 0,
@@ -106,20 +108,19 @@ const DiceRoller = () => {
     return rolledDice+summedConstants
   }
 
-  const [dice,constants] = validateExpression(expression)
   
-  const result = rollTheDice(dice,constants)
-  
-  console.log(result);
-  
+  const handleClick = () => {
+    const [dice, constants] = validateExpression(expression)
+    setResult(rollTheDice(dice, constants))    
+  }
   
 
   return (
     <div>
       <input placeholder="enter command here" onChange={e => { setIsCommand(checkIfCommand(e.target.value)); setExpression(e.target.value);}}></input>
-      <button>Enter</button>
+      <button onClick={handleClick}>Enter</button>
       <p>{isCommand ? "true" : "false"}</p>
-      {dice}
+      {result}
     </div>
   )
 }
